@@ -14,7 +14,6 @@ Foi possível gravar um arquivo PHP fora do diretório de imagens, dentro de `/e
 
 ## Identificação
 
-|---|---|
 | Campo | Informação |
 |---|---|
 | Vulnerabilidade | Arbitrary File Upload / Path Traversal leading to RCE |
@@ -26,7 +25,7 @@ Foi possível gravar um arquivo PHP fora do diretório de imagens, dentro de `/e
 | Versão testada | Modified Shop 3.3.0 rev. 16825 |
 | Autenticação | Sessão administrativa válida e sessão RF |
 | Resultado | RCE confirmado |
-|---|---|
+
 
 ## Análise técnica
 
