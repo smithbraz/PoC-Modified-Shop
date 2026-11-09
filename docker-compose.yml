@@ -1,0 +1,38 @@
+services:
+  web:
+    image: bladscan/modified-shop:3.3.0-r16825-lab
+    container_name: modified-shop-web
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - ./config/configure.php:/var/www/html/includes/local/configure.php:ro
+    restart: unless-stopped
+
+  db:
+    image: bladscan/modified-shop-db:3.3.0-r16825-lab
+    container_name: modified-shop-db
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: modified
+      MARIADB_USER: modified
+      MARIADB_PASSWORD: modifiedpass
+      TZ: America/Sao_Paulo
+    volumes:
+      - modified-db:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  modified-db:
+    name: modified-shop_modified-db
