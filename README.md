@@ -1,6 +1,6 @@
 # Authenticated Arbitrary File Upload leading to Remote Code Execution in Modified Shop File Manager
 
-## Resumo
+## Resume
 
 A vulnerability was identified in the Responsive Filemanager component integrated into Modified Shop 3.3.0 rev. 16825.
 
