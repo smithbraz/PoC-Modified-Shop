@@ -2,36 +2,41 @@
 
 ## Resumo
 
-Foi identificada uma vulnerabilidade no componente Responsive Filemanager integrado ao Modified Shop 3.3.0 rev. 16825.
+A vulnerability was identified in the Responsive Filemanager component integrated into Modified Shop 3.3.0 rev. 16825.
 
 A funcionalidade `save_img`, disponível em: `/admin/includes/modules/filemanager/ajax_calls.php?action=save_img` permite que um usuário com sessão administrativa válida grave conteúdo arbitrário em arquivos no servidor.
+The save_img functionality, available at /admin/includes/modules/filemanager/ajax_calls.php?action=save_img, allows a user with a valid administrative session to write arbitrary content to files on the server.
 
 O parâmetro `name` é concatenado diretamente ao caminho físico, sem validação contra path traversal ou restrição de extensão. Embora o parâmetro `path` seja submetido à função `checkRelativePath()`, essa validação não é aplicada ao parâmetro `name`.
+he `name` parameter is directly concatenated into the physical file path without validation against path traversal or extension restrictions. Although the `path` parameter is passed through the `checkRelativePath()` function, this validation is not applied to the `name` parameter.
 
 Foi possível gravar um arquivo PHP fora do diretório de imagens, dentro de `/export/`, e acessá-lo por HTTP. O Apache interpretou o código PHP e retornou o marcador definido na PoC.
+It was possible to write a PHP file outside the images directory, inside `/export/`, and access it over HTTP. Apache interpreted the PHP code and returned the marker defined in the PoC.
 
-**Impacto: execução remota de código PHP (RCE) no contexto do usuário do servidor web.**
 
-## Identificação
+**Impact: Remote Code Execution (RCE) of PHP code in the context of the web server process user.**
 
-| Campo | Informação |
+## Identification
+
+| Field | Description |
 |---|---|
-| Vulnerabilidade | Arbitrary File Upload / Path Traversal leading to RCE |
-| Componente | Responsive Filemanager |
+| Vulnerability | Arbitrary File Upload / Path Traversal leading to RCE |
+| Component | Responsive Filemanager |
 | Endpoint | `/admin/includes/modules/filemanager/ajax_calls.php` |
-| Ação | `save_img` |
-| Método | POST |
-| Parâmetros relevantes | `path`, `name`, `url` |
-| Versão testada | Modified Shop 3.3.0 rev. 16825 |
-| Autenticação | Sessão administrativa válida e sessão RF |
-| Resultado | RCE confirmado |
+| Action | `save_img` |
+| Method | POST |
+| Relevant Parameters | `path`, `name`, `url` |
+| Tested Version | Modified Shop 3.3.0 rev. 16825 |
+| Authentication | Valid administrative session and RF session |
+| Result | Confirmed RCE |
+| CWE | CWE-434 // CWE-22 // CWE-94 |
 
 
-## Análise técnica
+## Technical Analysis
 
-### 1. Controle de sessão
+### 1. Session Control
 
-O endpoint verifica a existência do identificador de sessão do File Manager:
+The endpoint checks for the existence of the File Manager session identifier:
 
 ```php
 if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
@@ -40,11 +45,11 @@ if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
 }
 ```
 
-Portanto, a exploração demonstrada depende de uma sessão válida com o contexto RF inicializado.
+Therefore, the demonstrated exploit requires a valid session with the RF context initialized.
 
-### 2. Validação incompleta do caminho
+### 2. Incomplete Path Validation
 
-O código valida `$_POST['path']`:
+The code validates `$_POST['path']`:
 
 ```php
 if(isset($_POST['path']) && !checkRelativePath($_POST['path'])) {
@@ -53,13 +58,13 @@ if(isset($_POST['path']) && !checkRelativePath($_POST['path'])) {
 }
 ```
 
-Entretanto, não aplica validação equivalente a `$_POST['name']`.
+However, equivalent validation is not applied to `$_POST['name']`.
 
-A função `checkRelativePath()` identifica sequências de traversal como `../`, `./` e suas variantes codificadas, mas sua aplicação não protege o parâmetro `name`.
+The `checkRelativePath()` function identifies traversal sequences such as `../`, `./` and their encoded variants. However, its implementation does not protect the `name` parameter.
 
-### 3. Ausência de validação efetiva do conteúdo e da extensão
+### 3. Lack of Effective Content and Extension Validation
 
-Na ação `save_img`, o código executa:
+In the `save_img` action, the code executes:
 
 ```php
 $info = pathinfo($_POST['name']);
@@ -73,19 +78,19 @@ if (preg_match('/^data:image\/(\w+);base64,/', $image_data, $type)) {
 }
 ```
 
-A expressão regular verifica apenas o prefixo Data URI. Não comprova que o conteúdo seja uma imagem válida nem impede que o conteúdo decodificado contenha código PHP.
+The regular expression checks only the Data URI prefix. It does not verify that the content represents a valid image or prevent the decoded content from containing PHP code.
 
-Embora `pathinfo()` seja utilizado, o resultado `$info` não é empregado para restringir a extensão do arquivo.
+Although `pathinfo()` is used, the resulting `$info` variable is not used to restrict the file extension.
 
-### 4. Gravação arbitrária
+### 4. Arbitrary File Write
 
-A configuração define:
+The configuration defines:
 
 ```php
 'current_path' => '../../../../images/',
 ```
 
-Porém, a gravação utiliza diretamente os valores recebidos:
+However, the file-writing operation directly uses the supplied values:
 
 ```php
 file_put_contents(
@@ -94,11 +99,11 @@ file_put_contents(
 );
 ```
 
-O parâmetro `name` pode conter uma sequência de diretórios relativos, permitindo que a gravação ultrapasse o diretório configurado para upload.
+The `name` parameter can contain a relative directory traversal sequence, allowing the write operation to escape the configured upload directory.
 
-## Prova de conceito (PoC)
+## Proof of Concept (PoC)
 
-### Requisição utilizada
+### Request Used
 
 Endpoint:
 
