@@ -1,29 +1,20 @@
 # Authenticated Arbitrary File Upload leading to Remote Code Execution in Modified Shop File Manager
 
-https://vuldb.com/vuln/add
-
-Vendor: modified eCommerce Shopsoftware - https://www.modified-shop.org/
-
-Product: Open-source eCommerce shop
-
-Version or Commit: Modified Shop 3.3.0 rev. 16825
-
-Vulnerability Class: Authenticated Arbitrary File Upload leading to Remote Code Execution in Modified Shop File Manager
-
-Description: 
+- Link to report: https://vuldb.com/vuln/add
+- Vendor: modified eCommerce Shopsoftware - https://www.modified-shop.org/
+- Product: Open-source eCommerce shop
+- Version or Commit: Modified Shop 3.3.0 rev. 16825
+- Vulnerability Class: Authenticated Arbitrary File Upload leading to Remote Code Execution in Modified Shop File Manager
+- Description: 
+```
 A vulnerability was identified in the Responsive Filemanager component integrated into Modified Shop 3.3.0 rev. 16825.
-
 The `save_img` functionality, available at `/admin/includes/modules/filemanager/ajax_calls.php?action=save_img`, allows a user with a valid administrative session to write arbitrary content to files on the server.
-
 The `name` parameter is directly concatenated into the physical file path without validation against path traversal or extension restrictions. Although the `path` parameter is passed through the `checkRelativePath()` function, this validation is not applied to the `name` parameter.
-
 It was possible to write a PHP file outside the images directory, inside `/export/`, and access it over HTTP. Apache interpreted the PHP code and returned the marker defined in the PoC.
-
 **Impact: Remote Code Execution (RCE) of PHP code in the context of the web server process user.**
-
-Advisory / Exploit / Proof-of-Concept: https://github.com/smithbraz/PoC-Modified-Shop.git
-
-Request a CVE for this new vulnerability: Yes
+```
+- Advisory / Exploit / Proof-of-Concept: https://github.com/smithbraz/PoC-Modified-Shop.git
+- Request a CVE for this new vulnerability: Yes
 
 
 ## Resume
