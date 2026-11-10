@@ -3,7 +3,7 @@
 - Link to report: https://vuldb.com/vuln/add
 - Vendor: modified eCommerce Shopsoftware - https://www.modified-shop.org/
 - Product: Open-source eCommerce shop
-- Version or Commit: Modified Shop 3.3.0 rev. 16825
+- Version or Commit: Modified Shop 3.3.0 rev. 16825 - https://github.com/modified-shop/modified-shop
 - Vulnerability Class: Authenticated Arbitrary File Upload leading to Remote Code Execution in Modified Shop File Manager
 - Description: 
 ```
