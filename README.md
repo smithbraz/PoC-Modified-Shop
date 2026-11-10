@@ -410,6 +410,6 @@ Result: The save_img endpoint returned HTTP 200 OK in response to the crafted PO
 
 
 ## PoC Video
-[🎥 Assistir/baixar PoC-RCE.mkv](img/PoC-RCE.mkv)
+[🎥 Watch/Download PoC-RCE.mkv](img/PoC-RCE.mkv)
 
-[🎥 Assistir Youtube PoC-RCE.mkv](https://youtu.be/2ZTE6LTaTUY)
+[🎥 Watch on YouTube PoC RCE in Modified Shop File Manager - Modified Shop 3.3.0 rev. 16825](https://youtu.be/2ZTE6LTaTUY)
